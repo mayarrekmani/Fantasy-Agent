@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Gridiron Gazette: start/sit for every Sleeper league</title>
+  <meta name="description" content="Enter your Sleeper username and get a start/sit recommendation, waiver pickups and trade ideas for every fantasy football league you are in.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <h1>The Gridiron Gazette</h1>
+      <div class="dateline">
+        <span id="dl-week">Fantasy football edition</span>
+        <span id="dl-date"></span>
+        <span>Built from your Sleeper leagues</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="finder">
+        <h2>Who should you start?</h2>
+        <p class="lede-note">Enter your Sleeper username. You get a recommended lineup for every league you are in, with the reasoning for each player, waiver pickups and trade ideas.</p>
+        <form id="form" novalidate>
+          <label for="username">Sleeper username</label>
+          <div class="row">
+            <input id="username" name="username" type="text" inputmode="text" autocomplete="username"
+                   autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="40" required
+                   placeholder="for example, mayrek543">
+            <button type="submit" id="go">Get my lineups</button>
+          </div>
+          <details class="key">
+            <summary>Optional: turn on Claude's final call</summary>
+            <p>Paste your own Anthropic API key and Claude will check the latest news and make the final start/sit decision for each league. Your key is sent only with your request, is never stored, and you pay for your own usage (usually a few cents per league). Leave it blank for the projection model's picks.</p>
+            <label for="apikey">Anthropic API key</label>
+            <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-...">
+          </details>
+        </form>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </section>
+
+      <div id="results" hidden>
+        <div class="tabs" role="tablist" id="tabs" aria-label="Leagues"></div>
+        <div id="panels"></div>
+      </div>
+    </main>
+
+    <footer class="site-foot">
+      <p>Projections start from Sleeper's own numbers and are adjusted slightly by a model that looks at current form, team performance, depth chart and matchups. They are estimates, not guarantees. Always check inactives before kickoff.</p>
+      <p>Not affiliated with Sleeper or the NFL. Player photos and team logos load from Sleeper's servers. Your username is only used to look up your public leagues.</p>
+    </footer>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

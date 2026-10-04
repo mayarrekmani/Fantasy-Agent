@@ -1,0 +1,17 @@
+# secrets: never commit these
+.env
+.env.*
+*.key
+anthropic_key.txt
+ANTHROPIC_API_KEY.txt
+*api_key*.txt
+
+# generated / local
+cache/
+lineups.html
+__pycache__/
+*.pyc
+.vercel/
+.venv/
+venv/
+.DS_Store
