@@ -1,6 +1,7 @@
 """GET /api/lineup?username=NAME&league_id=ID  ->  the analyzed league as an HTML panel (this is the slow call).
 
-Optional header X-Anthropic-Key: the visitor's own Anthropic key, used only for this request and never stored."""
+Optional headers: X-Anthropic-Key (the visitor's own key, used only for this request and never stored) or
+X-Owner-Code (the site owner's passcode, which makes the site use its own ANTHROPIC_API_KEY)."""
 import os
 import sys
 import time
@@ -28,7 +29,7 @@ class handler(BaseHTTPRequestHandler):
             return C.send_json(self, 429, {"error": "Too many analyses in a short time. Please wait a few minutes."})
         key, mode, key_error = C.pick_api_key(self)
         if key_error:
-            return C.send_json(self, 400, {"error": key_error})
+            return C.send_json(self, key_error[0], {"error": key_error[1]})
         started = time.time()
         try:
             ctx = F.request_context(api_key=key)

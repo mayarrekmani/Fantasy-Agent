@@ -47,7 +47,22 @@ class Dev(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+def enable_local_claude():
+    """Local convenience only (this file is never deployed): use a key file next to this script, if there is one,
+    so Claude's final call works on your own computer without pasting the key into the page each time."""
+    import fantasy
+    source = fantasy.load_api_key()
+    if source:
+        os.environ["ENABLE_SERVER_CLAUDE"] = "1"
+        os.environ.setdefault("SERVER_CLAUDE_PER_DAY", "100")
+        print(f"Claude's final call: ON for this local server (key read from {source}).")
+    else:
+        print("Claude's final call: OFF. Paste a key in the box on the page, or save your key in a .txt file "
+              "in this folder (next to dev_server.py).")
+
+
 if __name__ == "__main__":
+    enable_local_claude()
     port = int(os.environ.get("PORT", "3000"))
     print(f"Serving on http://localhost:{port}  (Ctrl+C to stop)")
     ThreadingHTTPServer(("127.0.0.1", port), Dev).serve_forever()

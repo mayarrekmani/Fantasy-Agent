@@ -1,4 +1,5 @@
 """Shared helpers for the website's API endpoints: validation, rate limits, JSON replies, API-key handling."""
+import hmac
 import json
 import os
 import re
@@ -47,6 +48,20 @@ class RateLimiter:
             return True
 
 
+    def blocked(self, key, limit, window_seconds):
+        """True if `key` has already used up `limit` hits in the window (does not record a hit)."""
+        now = time.time()
+        with self._lock:
+            q = self._hits[key]
+            while q and now - q[0] > window_seconds:
+                q.popleft()
+            return len(q) >= limit
+
+    def record(self, key):
+        with self._lock:
+            self._hits[key].append(time.time())
+
+
 LIMITER = RateLimiter()
 
 
@@ -71,14 +86,32 @@ def send_json(h, status, payload):
 
 
 def pick_api_key(h):
-    """Returns (key, mode, error). The visitor's own key wins. The server's key is only used when the site owner
-    explicitly enables it, and then only a couple of times per visitor per day."""
+    """Returns (key, mode, error) where error is None or (http_status, message).
+
+    1. Owner mode: the site owner's browser sends X-Owner-Code. If it matches the OWNER_PASSCODE setting, the site's
+       own ANTHROPIC_API_KEY is used. Nobody else can trigger it, and wrong guesses are rate limited.
+    2. A visitor's own key (X-Anthropic-Key) is used for that visitor's request only.
+    3. Optional public mode (ENABLE_SERVER_CLAUDE=1): the site's key for anyone, a couple of times per day each.
+    """
+    server_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    owner_code = (h.headers.get("x-owner-code") or "").strip()[:200]
+    if owner_code:
+        expected = os.environ.get("OWNER_PASSCODE", "")
+        if not expected or not server_key:
+            return "", "off", (400, "Owner mode is not set up on this site.")
+        if LIMITER.blocked("badcode:" + client_ip(h), 8, 3600):  # checked BEFORE comparing, so guessing cannot continue
+            return "", "off", (429, "Too many wrong passcodes. Try again in an hour.")
+        if not hmac.compare_digest(owner_code.encode(), expected.encode()):
+            LIMITER.record("badcode:" + client_ip(h))
+            return "", "off", (403, "That owner passcode is not right.")
+        if not LIMITER.allow("owner:" + client_ip(h), 200, 86400):  # a runaway loop should not drain the key
+            return "", "off", (429, "Daily owner limit reached.")
+        return server_key, "owner", None
     supplied = (h.headers.get("x-anthropic-key") or "").strip()
     if supplied:
         if not KEY_RE.match(supplied):
-            return "", "off", "That does not look like an Anthropic API key. It should start with sk-ant-."
+            return "", "off", (400, "That does not look like an Anthropic API key. It should start with sk-ant-.")
         return supplied, "your key", None
-    server_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if server_key and os.environ.get("ENABLE_SERVER_CLAUDE") == "1":
         per_day = int(os.environ.get("SERVER_CLAUDE_PER_DAY", "2"))
         if LIMITER.allow("claude:" + client_ip(h), per_day, 86400):

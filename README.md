@@ -63,6 +63,7 @@ Fluid compute must be on so a function can run up to 5 minutes. It is on by defa
 
 | Name | What it does |
 | --- | --- |
+| `ANTHROPIC_API_KEY` = your key, and `OWNER_PASSCODE` = a long phrase you choose | **Owner mode (recommended).** The site uses your key automatically, but only for a browser that has entered your passcode (open "Optional: turn on Claude's final call" and fill in "Owner passcode" once; the page remembers it on that device). Strangers can't trigger it. Choose a long passcode, such as four random words. After too many wrong guesses an address is locked out for an hour. |
 | `ENABLE_SERVER_CLAUDE` = `1` and `ANTHROPIC_API_KEY` = your key | Lets visitors use Claude's final call on YOUR key. This costs you money, so only turn it on if you accept that. Each visitor is limited to `SERVER_CLAUDE_PER_DAY` league analyses (default 2). |
 | `FANTASY_SLEEPER_PROJECTIONS` = `0` | Do not use Sleeper's undocumented projection feed; the model's own numbers are used. |
 | `FANTASY_IMAGES` = `0` | Show plain team chips instead of loading player photos and logos from Sleeper's servers. |

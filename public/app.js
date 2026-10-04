@@ -7,7 +7,11 @@
 
   $('#dl-date').textContent = new Date().toLocaleDateString(undefined,
     { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  try { const saved = localStorage.getItem('sleeperUsername'); if (saved) $('#username').value = saved; } catch (_) {}
+  try {
+    const saved = localStorage.getItem('sleeperUsername'); if (saved) $('#username').value = saved;
+    const code = localStorage.getItem('ownerCode');
+    if (code) { $('#ownercode').value = code; $('details.key').open = true; }
+  } catch (_) {}
 
   function setStatus(message, kind, spinning) {
     statusEl.className = 'status' + (kind ? ' ' + kind : '');
@@ -79,7 +83,10 @@
   async function analyze(ui, lg, username, apiKey, myRun) {
     ui.state.textContent = 'Analyzing…';
     setPending(ui, 'Analyzing this league. The first one can take a minute while the NFL data loads; the rest are faster.');
-    const headers = apiKey ? { 'X-Anthropic-Key': apiKey } : {};
+    const headers = {};
+    const owner = $('#ownercode').value.trim();
+    if (owner) headers['X-Owner-Code'] = owner;
+    else if (apiKey) headers['X-Anthropic-Key'] = apiKey;
     try {
       const data = await api('/api/lineup', { username, league_id: lg.id }, headers);
       if (myRun !== runId) return;
@@ -115,7 +122,11 @@
     if (apiKey && !/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(apiKey)) {
       setStatus('That does not look like an Anthropic API key. It should start with sk-ant-. Leave it blank to skip Claude.', 'error'); return;
     }
-    try { localStorage.setItem('sleeperUsername', username); } catch (_) {}
+    try {
+      localStorage.setItem('sleeperUsername', username);
+      const oc = $('#ownercode').value.trim();
+      if (oc) localStorage.setItem('ownerCode', oc); else localStorage.removeItem('ownerCode');
+    } catch (_) {}
     const myRun = ++runId;
     go.disabled = true;
     results.hidden = true; tabsEl.textContent = ''; panelsEl.textContent = '';

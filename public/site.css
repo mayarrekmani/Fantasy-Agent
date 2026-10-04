@@ -29,3 +29,4 @@
 .site-foot{margin:3.5rem auto 0;max-width:46rem;padding-top:.8rem;border-top:3px double var(--ink);font-size:.86rem;color:var(--ink-2);text-align:center}
 .site-foot p{margin:.3rem 0}
 @media (max-width:520px){.finder .row{flex-direction:column}.finder button{padding:.8rem}}
+.finder .owner-note{margin-top:.2rem}

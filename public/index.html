@@ -39,6 +39,9 @@
             <p>Paste your own Anthropic API key and Claude will check the latest news and make the final start/sit decision for each league. Your key is sent only with your request, is never stored, and you pay for your own usage (usually a few cents per league). Leave it blank for the projection model's picks.</p>
             <label for="apikey">Anthropic API key</label>
             <input id="apikey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-...">
+            <p class="owner-note">Running this site yourself? Enter your owner passcode instead and the site uses its own key. It is remembered on this device only.</p>
+            <label for="ownercode">Owner passcode</label>
+            <input id="ownercode" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="only for the site owner">
           </details>
         </form>
         <p id="status" class="status" role="status" aria-live="polite"></p>
